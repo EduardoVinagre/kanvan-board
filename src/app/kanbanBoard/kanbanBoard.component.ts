@@ -1,4 +1,4 @@
-import {Component, OnInit} from '@angular/core';
+import { Component, OnInit } from '@angular/core';
 
 @Component({
   selector: 'kanban-board',
@@ -9,6 +9,9 @@ export class KanbanBoard implements OnInit {
   tasks: Task[];
   stagesNames: string[];
   stagesTasks: any[]; //Only used for rendering purpose
+  lastStage: number;
+  firstStage: number;
+  taskName: string;
 
   ngOnInit() {
     // Each task is uniquely identified by its name. 
@@ -19,8 +22,11 @@ export class KanbanBoard implements OnInit {
     ];
     this.stagesNames = ['Backlog', 'To Do', 'Ongoing', 'Done'];
     this.configureTasksForRendering();
+    this.firstStage = 0;
+    this.lastStage = this.stagesNames.length - 1;
+    this.taskName = "";
   }
-  
+
   // this function has to be called whenever tasks array is changed to construct stagesTasks for rendering purpose
   configureTasksForRendering = () => {
     this.stagesTasks = [];
@@ -35,6 +41,43 @@ export class KanbanBoard implements OnInit {
 
   generateTestId = (name) => {
     return name.split(' ').join('-');
+  }
+
+  goForwardClick = (task: Task) => {
+    if (task.stage < this.lastStage) {
+      task.stage++;
+      this.configureTasksForRendering();
+    }
+  }
+
+  goBackwardClick = (task: Task) => {
+    if (task.stage > this.firstStage) {
+      task.stage--;
+      this.configureTasksForRendering();
+    }
+  }
+
+  addTask = (event: Event) => {
+    if(event){
+      event.preventDefault();
+    }
+    if (this.taskName.trim() !== '') {
+      let newTask: Task = {
+        name: this.taskName,
+        stage: 0
+      };
+      this.tasks.push(newTask);
+      this.configureTasksForRendering();
+      this.taskName = "";
+    }
+  }
+
+  deleteTask = (task: Task) => {
+    let taskIndex = this.tasks.indexOf(task);
+    if (taskIndex !== -1) {
+      this.tasks.splice(taskIndex, 1);
+      this.configureTasksForRendering();
+    }
   }
 }
 
